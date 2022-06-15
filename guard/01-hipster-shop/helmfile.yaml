@@ -1,0 +1,17 @@
+# https://github.com/GoogleCloudPlatform/microservices-demo
+
+releases:
+
+  ##
+  ## HIPSTER-SHOP
+  - name: hipster
+    namespace: hipster
+    forceNamespace: hipster
+    chart: ./hipster-chart
+
+  ##
+  ## NETWORK POLICIES
+  - name: hipster-network-policies
+    namespace: hipster
+    forceNamespace: hipster
+    chart: ./network-policies-chart

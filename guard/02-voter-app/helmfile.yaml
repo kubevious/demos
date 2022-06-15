@@ -1,0 +1,10 @@
+# https://github.com/dockersamples/example-voting-app
+
+releases:
+
+  ##
+  ## VOTER-APP
+  - name: voter
+    namespace: voter
+    forceNamespace: voter
+    chart: ./voter-chart
