@@ -499,7 +499,7 @@ spec:
               exit 1
           fi
         name: frontend-check
-        image: busybox:latest
+        image: busybox:1.34
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
