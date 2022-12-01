@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: mytransport
+  namespace: default
+spec:
+  serverName: foobar               # [1]
+  insecureSkipVerify: true         # [2]
+  rootCAsSecrets:                  # [3]
+    - foobar
+    - foobar
+  certificatesSecrets:             # [4]
+    - foobar
+    - foobar
+  maxIdleConnsPerHost: 1           # [5]
+  forwardingTimeouts:              # [6]
+    dialTimeout: 42s               # [7]
+    responseHeaderTimeout: 42s     # [8]
+    idleConnTimeout: 42s           # [9]
+  peerCertURI: foobar              # [10]
+  disableHTTP2: true               # [11]
