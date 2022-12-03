@@ -6,7 +6,7 @@ metadata:
   annotations:
     httpbin.ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "kong"
-    konghq.com/plugins: httpbin-auth
+    konghq.com/plugins: httpbin-auth,add-response-header
 spec:
   rules:
   - http:
