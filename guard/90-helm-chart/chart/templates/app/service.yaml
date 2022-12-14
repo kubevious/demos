@@ -4,7 +4,7 @@ kind: Service
 metadata:
   labels:
     app: httpbin
-  name: httpbin-deployment
+  name: httpbin
   annotations:
     konghq.com/plugins: basic-auth-example,request-id,rate-limiting-example
 spec:

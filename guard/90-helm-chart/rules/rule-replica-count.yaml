@@ -1,0 +1,12 @@
+---
+apiVersion: kubevious.io/v1alpha1
+kind: RuleApplicator
+metadata:
+  name: replica-count
+spec:
+  clusterRuleRef:
+    name: replica-count-check
+  # disabled: true
+  values:
+    minReplicas: 3
+    maxReplicas: 20

@@ -1,0 +1,15 @@
+{{- if .Values.hpa -}}
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: httpbin
+spec:
+  maxReplicas: 6
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: httpbin
+  targetCPUUtilizationPercentage: 80
+{{- end }}

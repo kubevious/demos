@@ -1,2 +1,3 @@
 replicas: 5
 ingress: true
+hpa: true

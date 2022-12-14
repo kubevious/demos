@@ -16,7 +16,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: httpbin-deployment
+            name: httpbin
             port:
               number: 80
 {{- end }}
