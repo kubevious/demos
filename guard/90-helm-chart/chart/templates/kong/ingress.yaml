@@ -1,0 +1,22 @@
+{{- if .Values.ingress -}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: httpbin-ingress
+  annotations:
+    httpbin.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "kong"
+    konghq.com/plugins: httpbin-auth,add-response-header,missing-plugin
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: httpbin-deployment
+            port:
+              number: 80
+{{- end }}
