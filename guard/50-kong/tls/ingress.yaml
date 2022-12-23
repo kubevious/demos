@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-example-com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # cert-manager.io/issuer: letsencrypt-local
+spec:
+  ingressClassName: kong
+  tls:
+  - secretName: demo-example-com
+    hosts:
+    - demo.example.com
+  rules:
+  - host: demo.example.com
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: echo
+            port:
+              number: 80
