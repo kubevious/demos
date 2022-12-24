@@ -1,3 +1,4 @@
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -25,3 +26,17 @@ spec:
     - example.com
     - www.example.com
     secretName: landing-tls-secret
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: landing-svc
+  namespace: landing
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
