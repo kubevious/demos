@@ -1,0 +1,191 @@
+---
+apiVersion: v1
+data:
+  AWS_REGION: eu-central-1
+  JAVA_TOOL_OPTIONS: -Dspring.profiles.active=dev -javaagent:/usr/app/dd-java-agent.jar
+    -Xms256m -Xmx512m -Xverify:none -XX:TieredStopAtLevel=1 -Dspring.main.lazy-initialization=false
+    -Dspringdoc.api-docs.enabled=false
+kind: ConfigMap
+metadata:
+  labels:
+    app: microservice-blueprint
+  name: app-config
+  namespace: microservice-blueprint
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: microservice-blueprint
+  name: microservice-blueprint
+  namespace: microservice-blueprint
+spec:
+  ports:
+  - name: web
+    port: 80
+    targetPort: web
+  selector:
+    app: microservice-blueprint
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice-blueprint
+  name: microservice-blueprint
+  namespace: microservice-blueprint
+spec:
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: microservice-blueprint
+
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: microservice-blueprint
+      name: microservice-blueprint
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - microservice-blueprint
+              topologyKey: topology.kubernetes.io/zone
+            weight: 100
+      containers:
+      - env:
+        envFrom:
+        - secretRef:
+            name: app-secret
+        - configMapRef:
+            name: app-config
+        image: REPLACE_IMAGE
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /microservice-blueprint/actuator/health/readiness
+            port: 8999
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 2
+        name: microservice-blueprint
+        ports:
+        - containerPort: 8999
+          name: web
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /microservice-blueprint/actuator/health/readiness
+            port: 8999
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 2
+        resources:
+          limits:
+            cpu: 250m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        securityContext:
+          readOnlyRootFilesystem: false
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        startupProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /microservice-blueprint/actuator/health/readiness
+            port: 8999
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 2
+        volumeMounts:
+        - mountPath: /app-config/mount
+          name: app-config-volume
+      serviceAccountName: microservice-blueprint
+      shareProcessNamespace: true
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - configMap:
+          name: app-config
+        name: app-config-volume
+---
+apiVersion: external-secrets.io/v1alpha1
+kind: ExternalSecret
+metadata:
+  labels:
+    app: microservice-blueprint
+
+  name: app-secret
+  namespace: microservice-blueprint
+spec:
+  dataFrom:
+  - key: project-dev-app-secret
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: secrets
+  target:
+    name: app-secret
+---
+apiVersion: external-secrets.io/v1alpha1
+kind: SecretStore
+metadata:
+  labels:
+    app: microservice-blueprint
+
+  name: secrets
+  namespace: microservice-blueprint
+spec:
+  provider:
+    aws:
+      region: eu-central-1
+      service: SecretsManager
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/group.name: backend
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/success-codes: "200"
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: alb
+  labels:
+    app: microservice-blueprint
+
+  name: microservice-blueprint
+  namespace: microservice-blueprint
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: microservice-blueprint
+            port:
+              name: web
+        path: /microservice-blueprint*
+        pathType: ImplementationSpecific****
