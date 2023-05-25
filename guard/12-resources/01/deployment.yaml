@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example
+spec:
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+      - name: app
+        image: images.my-company.example/app:v4
+        resources:
+          requests:
+            memory: "64Gi"
+            cpu: 0.75
+          limits:
+            memory: "128G"
+            cpu: "500m"
+      - name: log-aggregator
+        image: images.my-company.example/log-aggregator:v6
+        resources:
+          requests:
+            memory: "64Gi"
+            cpu: "2"
+          limits:
+            memory: "128Mi"
+            cpu: 1
